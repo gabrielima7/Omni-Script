@@ -1,0 +1,17 @@
+# Omni-Script ShellCheck Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Default shell is bash
+shell=bash
+
+# Enable all optional checks
+enable=all
+
+# Allow sourcing from the same directory
+source-path=SCRIPTDIR
+
+# Allow external sources (for sourcing our lib files)
+external-sources=true
+
+# Severity level (style = most pedantic)
+severity=style

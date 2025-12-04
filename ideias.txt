@@ -1,0 +1,116 @@
+quero criar um repositório no github com scripts ajudantes para instalar varias coisas em qualquer distribuição linux, seja elas em container docker, podman, lxc dentre outros ou bare metal, e não ficar presa só em aplicações, programas e ferramentas, mas também frameworks, bibliotecas e outras coisas a mais, também dando a possibilidade de construir setups inteiros com ela, monte um plano de ação de como deveria ser esse projeto. Esses dois projetos são grandes inspirações para esse projeto que quero fazer
+
+
+uma estrutura modular de Infraestrutura como Código escrita em Bash. O objetivo é refatorar a base de código existente em uma ferramenta de orquestração sofisticada e puramente terminal (sem TUI/Whiptail) que gerencia implantações híbridas em Docker, Podman, LXC e Bare Metal.
+
+Visão e requisitos do projeto
+
+Você deve refatorar o sistema para atender às seguintes especificações da “CLI definitiva”:
+1. Experiência CLI (UX/UI)
+
+    Visuais: crie uma estética “hacker-chic”. Use cabeçalhos em ASCII art, esquemas de cores consistentes (ANSI) e emojis significativos (por exemplo, 🐳, 📦, 🔒, 🚀).
+
+    Animações: Implemente spinners baseados em texto fluentes e barras de progresso para tarefas de longa duração (downloads, instalações).
+
+2. O mecanismo “Any-Target” (crítico)
+
+A lógica de instalação deve ser dissociada do destino. Quando um usuário seleciona um aplicativo (por exemplo, Portainer), o sistema deve perguntar:
+
+    Destino: [ Docker | Podman | LXC | Bare Metal ]
+
+    Estratégia:
+
+        Contêiner: Gerar definições dinâmicas docker-compose.yml ou podman play kube.
+
+        LXC: Criar um contêiner, injetar o script de instalação dentro dele e executá-lo.
+
+        Bare Metal: Instalar dependências diretamente no sistema operacional host usando installer_adapter.sh.
+        
+
+3. Pesquisa dinâmica de imagens e inteligência
+
+Sem codificação rígida: não codifique tags de imagem (por exemplo, image: app:latest).
+
+Consulta ao registro: antes da implantação, o script deve usar curl (e jq, se necessário) para consultar a API do Docker Hub/Quay, encontrar a tag estável mais recente e apresentá-la ao usuário ou usá-la automaticamente.
+        
+        
+4. Configuração granular e global
+
+Fluxo de trabalho: Após a instalação, pergunte: “Usar padrões globais ou personalizar?”
+
+Configuração global (lib/global_config.sh): Deve abranger padrões robustos (fuso horário, usuário administrador, SMTP, interface de rede, domínio raiz e etc).
+
+    Personalização granular (por aplicativo):
+
+Rede: opção para definir IP estático (IPv4/IPv6), gateway e servidores DNS (crucial para LXC/Docker Macvlan).
+
+Acesso: opção para injetar chaves SSH específicas ou definir portas de serviço personalizadas.
+
+Recursos: definir limites de CPU/RAM para contêineres.       
+
+
+5. Segurança por padrão
+
+Geração automática: se o usuário deixar os campos de senha em branco durante a configuração, gere automaticamente uma sequência alfanumérica segura de 32 caracteres.
+
+    Resumo pós-instalação: exiba uma caixa de resumo clara e delimitada no final da instalação contendo:
+
+        URL do serviço (por exemplo, https://app.domain.com)
+
+        Nome de usuário/senha gerados
+
+        Caminho do arquivo para alterar essas credenciais posteriormente.
+        
+        
+6. A “Builder Stack”
+
+Torne o menu “Builder Stack” totalmente funcional. Permita que o usuário encadeie seleções para compor um ambiente personalizado:
+
+Selecione o banco de dados: (Postgres, MariaDB, Mongo, Redis...)
+
+Selecione o backend: (Node, Python, Go...)
+
+Selecione o frontend: (React, Vue, Static...)
+
+    Selecione o proxy reverso: (Nginx, Traefik...)
+
+    Ação: Gere um único docker-compose.yml (ou Podman Pod) unificado e implante imediatamente.
+    
+  
+7. Sistema de backup universal
+
+
+    Docker/Podman: Pare o contêiner -> Faça backup dos volumes nomeados/montagens vinculadas -> Reinicie.
+
+    LXC: Execute o lxc export ou compacte o rootfs.
+
+    Bare Metal: Faça backup de configurações específicas do /etc e diretórios de dados /var/lib definidos pelo script do aplicativo.
+        
+
+A Linux-Library é uma framework de "Infrastructure as Code" (IaC) modular e agnóstica para sistemas Linux. O seu objetivo é democratizar a gestão de servidores, permitindo que qualquer utilizador instale, configure e mantenha aplicações complexas com um único comando, sem depender de interfaces web.
+
+Smart Search Engine (O "Google" do Terminal):
+
+    Busca de Pacotes: Um script que procura simultaneamente em APT, DNF, APK, Flatpak e Snap, normalizando a saída numa lista única selecionável.
+
+    Busca de Containers: Procura imagens no Docker Hub e Templates LXC (linuxcontainers.org) na mesma interface.
+    
+
+
+Opções para a instalação de Docker, Podman e LXC completa com todas as dependencias 
+
+Backup de docker, podman, lxc e bare metal opções
+
+Opção de instalar os programas entre docker, podman, lxc e bare metal
+
+Opção de escolher utilizar configurações globais ou configurações personalizadas 
+
+Quero que quando instalar ele não utilize apenas um script local, eu quero que ele faça uma busca indepedentemente se é bare metal ou docker, podman e lxc pelas imagens. Ex: quero fazer deploy do portainer, ele vai pesquisar no docker ou docker hub pela imagens atualizadas e integrar ao script local.
+
+As configurações globais devem ser completas, ter todas as opções possiveis para abranger todos os containers
+
+Dar direito de escolher opções granulares, como IP, DNS, SSH dentre outras configurações seja no docker, podman, ou lxc, assim como no helper scripts do proxmox
+
+Utilizar usuário e senhas por padrões aleatorias para maior segurança, caso o usuário não não especificar usuário e senha e no final da instalação mostrar para ele o usuário, senha, endereço e aonde ele pode mudar o usuário e senha no container
+
+Deixar a opção Builder Stack totalmente funcional, dando as opções para a pessoa escolher e depois instalar seja docker, podman, lxc ou bare metal
